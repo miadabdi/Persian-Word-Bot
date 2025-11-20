@@ -87,7 +87,7 @@ def main():
     # Keep the script running to check the time
     while True:
         schedule.run_pending()
-        time.sleep(60)  # Check every minute
+        time.sleep(10)  # Check every 10 secs
 
 
 if __name__ == "__main__":

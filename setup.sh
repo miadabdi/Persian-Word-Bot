@@ -60,7 +60,7 @@ After=network.target
 [Service]
 User=$REAL_USER
 WorkingDirectory=$PROJECT_DIR
-ExecStart=$VENV_PYTHON $SCRIPT_PATH
+ExecStart=$VENV_PYTHON -u $SCRIPT_PATH
 Restart=always
 RestartSec=10
 
