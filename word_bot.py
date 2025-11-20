@@ -1,7 +1,7 @@
 import asyncio
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 import schedule
 from dotenv import load_dotenv
@@ -61,10 +61,20 @@ def job_wrapper():
 
 def main():
     print("🤖 Persian Word Bot is running...")
-    print(f"📅 Scheduled to send messages daily at {SCHEDULE_TIME}")
+
+    # Convert UTC SCHEDULE_TIME to local time
+    utc_h, utc_m = map(int, SCHEDULE_TIME.split(":"))
+    now_utc = datetime.now(timezone.utc)
+    target_utc = now_utc.replace(hour=utc_h, minute=utc_m, second=0, microsecond=0)
+    local_dt = target_utc.astimezone()
+    local_time_str = local_dt.strftime("%H:%M")
+
+    print(
+        f"📅 Scheduled to send messages daily at {SCHEDULE_TIME} UTC ({local_time_str} Local)"
+    )
 
     # Schedule the job
-    schedule.every().day.at(SCHEDULE_TIME).do(job_wrapper)
+    schedule.every().day.at(local_time_str).do(job_wrapper)
 
     # Just for testing: Uncomment the line below to send a message immediately when you start
     # job_wrapper()
