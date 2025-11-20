@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 import schedule
 from dotenv import load_dotenv
-from mnk_persian_words.persian_words import get_random_persian_word
+from faker import Faker
 from telegram import Bot
 
 # Load environment variables
@@ -18,7 +18,7 @@ try:
 except KeyError as e:
     raise ValueError(f"Missing environment variable: {e}")
 
-SCHEDULE_TIME = os.getenv("SCHEDULE_TIME", "09:00")  # Default to 09:00 if not set
+SCHEDULE_TIME = os.getenv("SCHEDULE_TIME", "09:00")
 # =================================================
 
 
@@ -29,13 +29,12 @@ async def send_daily_words():
     print(f"[{datetime.now()}] Preparing to fetch words...")
 
     try:
-        # 1. Generate 5 random Persian words
-        # The library returns a single string with spaces, so we split it for formatting
-        raw_words = get_random_persian_word(words_count=5)
-        words_list = raw_words.split(" ")
+        # 1. Generate 5 random Persian words using Faker
+        # Faker is more robust and supports the 'fa_IR' locale
+        fake = Faker("fa_IR")
+        words_list = fake.words(nb=5, unique=True)
 
         # 2. Format the message nicely
-        # We use Markdown to make the header bold
         message = "📚 **Word of the Day** 📚\n\n"
         for i, word in enumerate(words_list, 1):
             message += f"{i}. {word}\n"
@@ -60,21 +59,27 @@ def job_wrapper():
 
 
 def main():
-    print("🤖 Persian Word Bot is running...")
+    print("🤖 Persian Word Bot is running (using Faker)...")
 
     # Convert UTC SCHEDULE_TIME to local time
-    utc_h, utc_m = map(int, SCHEDULE_TIME.split(":"))
-    now_utc = datetime.now(timezone.utc)
-    target_utc = now_utc.replace(hour=utc_h, minute=utc_m, second=0, microsecond=0)
-    local_dt = target_utc.astimezone()
-    local_time_str = local_dt.strftime("%H:%M")
+    try:
+        utc_h, utc_m = map(int, SCHEDULE_TIME.split(":"))
+        now_utc = datetime.now(timezone.utc)
+        target_utc = now_utc.replace(hour=utc_h, minute=utc_m, second=0, microsecond=0)
+        local_dt = target_utc.astimezone()
+        local_time_str = local_dt.strftime("%H:%M")
 
-    print(
-        f"📅 Scheduled to send messages daily at {SCHEDULE_TIME} UTC ({local_time_str} Local)"
-    )
+        print(
+            f"📅 Scheduled to send messages daily at {SCHEDULE_TIME} UTC ({local_time_str} Local)"
+        )
 
-    # Schedule the job
-    schedule.every().day.at(local_time_str).do(job_wrapper)
+        # Schedule the job
+        schedule.every().day.at(local_time_str).do(job_wrapper)
+
+    except Exception as e:
+        print(f"⚠️ Time zone calculation error: {e}")
+        print(f"   Fallback: Scheduling at server time {SCHEDULE_TIME}")
+        schedule.every().day.at(SCHEDULE_TIME).do(job_wrapper)
 
     # Just for testing: Uncomment the line below to send a message immediately when you start
     # job_wrapper()

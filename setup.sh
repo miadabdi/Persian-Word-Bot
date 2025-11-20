@@ -31,11 +31,10 @@ fi
 if [ ! -d "$VENV_DIR" ]; then
     echo "⚠️  Virtual environment not found. Creating one..."
     
-    # We run this command as the REAL_USER so the folder isn't owned by root
     if sudo -u "$REAL_USER" python3 -m venv "$VENV_DIR"; then
         echo "✅ Virtual environment created."
     else
-        echo "❌ Error creating venv. Make sure python3-venv is installed (sudo apt install python3-venv)."
+        echo "❌ Error creating venv. Make sure python3-venv is installed."
         exit 1
     fi
 else
@@ -44,8 +43,8 @@ fi
 
 # 3. Install Dependencies
 echo "📦 Installing dependencies..."
-# We install specific packages directly to ensure they exist
-if sudo -u "$REAL_USER" "$VENV_PIP" install python-telegram-bot schedule mnk-persian-words; then
+# Switched from mnk-persian-words to Faker due to compatibility issues
+if sudo -u "$REAL_USER" "$VENV_PIP" install -r requirements.txt; then
     echo "✅ Dependencies installed."
 else
     echo "❌ Error installing dependencies."
@@ -71,7 +70,6 @@ WantedBy=multi-user.target"
 # 5. Write the file to /etc/systemd/system/
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 
-# Use bash -c to handle the redirection with sudo permissions
 bash -c "echo \"$SERVICE_CONTENT\" > $SERVICE_FILE"
 
 if [ $? -eq 0 ]; then
@@ -92,5 +90,5 @@ echo "📊 Checking status..."
 systemctl status $SERVICE_NAME --no-pager
 
 echo ""
-echo "🎉 Setup Complete! Your bot is running."
+echo "🎉 Setup Complete! Your bot is running (now using Faker)."
 echo "   View logs with: sudo journalctl -u $SERVICE_NAME -f"

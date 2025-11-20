@@ -1,4 +1,4 @@
 python-telegram-bot
 schedule
-mnk-persian-words
+Faker
 python-dotenv
