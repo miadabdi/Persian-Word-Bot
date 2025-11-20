@@ -1,16 +1,24 @@
 import asyncio
+import os
 import time
 from datetime import datetime
 
 import schedule
+from dotenv import load_dotenv
 from mnk_persian_words.persian_words import get_random_persian_word
 from telegram import Bot
 
+# Load environment variables
+load_dotenv()
+
 # ================= CONFIGURATION =================
-# Replace these with your actual details
-BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
-CHANNEL_ID = "@YourChannelName"  # Or use the numeric ID like "-100123456789"
-SCHEDULE_TIME = "09:00"  # Time in 24h format to send words daily
+try:
+    BOT_TOKEN = os.environ["BOT_TOKEN"]
+    CHANNEL_ID = os.environ["CHANNEL_ID"]
+except KeyError as e:
+    raise ValueError(f"Missing environment variable: {e}")
+
+SCHEDULE_TIME = os.getenv("SCHEDULE_TIME", "09:00")  # Default to 09:00 if not set
 # =================================================
 
 
