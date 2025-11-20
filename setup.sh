@@ -14,7 +14,7 @@ fi
 
 # Get the current directory
 PROJECT_DIR=$(pwd)
-VENV_DIR="$PROJECT_DIR/venv"
+VENV_DIR="$PROJECT_DIR/.venv"
 VENV_PYTHON="$VENV_DIR/bin/python"
 VENV_PIP="$VENV_DIR/bin/pip"
 SCRIPT_PATH="$PROJECT_DIR/$SCRIPT_NAME"
